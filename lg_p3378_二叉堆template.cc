@@ -1,50 +1,72 @@
+#include <cstdlib>
 #include <iostream>
+#include <iterator>
+#include <stdexcept>
 #include <vector>
 
+using namespace std;
 
-template <typename T> class MinHeap {
+class min_pq {
 public:
-  MinHeap() : size_(0) {}
-
-  void push(const T &value) {
-    data_.push_back(value);
-    size_++;
-    swim(size_);
+  void push(int n) {
+    nums[p] = n;
+    swim(p);
+    p++;
   }
 
-  T pop() {
-    T value = data_[0];
-    data_[0] = data_[size_ - 1];
-    data_.pop_back();
-    size_--;
-    sink(1);
-    return value;
+  int pop() {
+    if (p == 0)
+      throw std::out_of_range{"sb"};
+    int res = nums[0];
+    nums[0] = nums[--p];
+    shink(0);
+    return res;
   }
 
-  bool empty() const { return size_ == 0; }
+  // hint: 完全二叉树的中某一节点的左节点
+  void shink(int cur) {
+    if (cur >= p)
+      return;
+    // get lft children
+    int lft = cur * 2 + 1;
+    if (lft < p) {
+      if (lft + 1 < p && nums[lft] > nums[lft + 1]) {
+        lft++;
+      }
+      swap(nums[cur], nums[lft]);
+      shink(lft);
+    }
+  }
 
-private:
-  std::vector<T> data_;
-  int size_;
-
+  // hint: 完全二叉树的父亲节点
   void swim(int cur) {
-    while (cur > 1 && data_[cur - 1] < data_[cur / 2 - 1]) {
-      std::swap(data_[cur - 1], data_[cur / 2 - 1]);
-      cur /= 2;
+    int k = cur;
+    // find it's parent
+    int parent = (cur - 1) / 2; // 向下取整即可
+    while (cur != 0 && nums[parent] > nums[cur]) {
+      swap(nums[parent], nums[cur]);
+      cur = parent;
+      parent = cur / 2;
     }
   }
 
-  void sink(int cur) {
-    while (cur * 2 <= size_) {
-      int child = cur * 2;
-      if (child < size_ && data_[child - 1] > data_[child]) {
-        child++;
-      }
-      if (data_[cur - 1] <= data_[child - 1]) {
-        break;
-      }
-      std::swap(data_[cur - 1], data_[child - 1]);
-      cur = child;
-    }
-  }
+  int p = 0;
+  int nums[10000];
 };
+
+void test_swim() {
+  vector<int> nums = {9, 1, 3, 2, 4, 6, 5, 7, 8};
+  min_pq pq;
+  for (auto i : nums) {
+    pq.push(i);
+  }
+  for (int i = 0; i < pq.p; ++i) {
+    cout << pq.nums[i] << endl;
+  }
+  cout << "===============================" << endl;
+  while (pq.p) {
+    cout << pq.pop() << endl;
+  }
+}
+
+int main() { test_swim(); }
