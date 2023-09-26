@@ -1,4 +1,14 @@
 #include <iostream>
 #include <vector>
 
-int main(int, char **) {}
+using namespace std;
+
+// 三要素：pid A B
+// 向前计算法
+
+
+
+
+int main(int , char ** args) {
+
+}

@@ -1,6 +1,8 @@
+#include <assert.h>
 #include <iostream>
 #include <limits.h>
 #include <queue>
+#include <stdio.h>
 #include <vector>
 
 // 实现图的所有算法
@@ -191,7 +193,48 @@ void TestWeighted() {
   print_path(1, 6, res.second);
 }
 
+// 有向图有环判定方法
+// dfs
+bool cycle_check_dfs(DirectGraph &d, int cur, std::vector<int> &visited) {
+  visited[cur] = 1;
+  for (auto i = 0; i < d.size(); ++i) {
+    if (d.has_edge(cur, i)) {
+      if (visited[i] == 1) {
+        return true;
+      }
+      bool ok = cycle_check_dfs(d, i, visited);
+      if (ok) {
+        return true;
+      }
+    }
+  }
+  visited[cur] = 2;
+  return false;
+}
+
+bool contain_cycle(DirectGraph &g) {
+  std::vector<int> visited(g.size(), 0);
+  for (auto i = 0; i < g.size(); ++i) {
+    if (visited[i] == 0) {
+      bool ok = cycle_check_dfs(g, i, visited);
+      if (ok) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+void TestCheckDirectedCycle() {
+  DirectGraph g(8);
+  g.quick_add_edge_with_weight({{1, 4, 1}, {1, 2, 2}, {2, 7, 1}, {7, 6, 1}});
+  assert(!contain_cycle(g));
+  g.add_edge(6, 1, 1);
+  assert(contain_cycle(g));
+}
 int main(int, char **) {
   TestUnWeighted();
   TestWeighted();
+  TestCheckDirectedCycle();
+  return 0;
 }
