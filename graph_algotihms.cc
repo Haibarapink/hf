@@ -232,6 +232,7 @@ void TestCheckDirectedCycle() {
   g.add_edge(6, 1, 1);
   assert(contain_cycle(g));
 }
+
 int main(int, char **) {
   TestUnWeighted();
   TestWeighted();
