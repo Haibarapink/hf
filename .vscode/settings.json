@@ -1,0 +1,6 @@
+{
+    "clangd.checkUpdates": true,
+    "clangd.arguments": [
+        "-std=c++17"
+    ]
+}
