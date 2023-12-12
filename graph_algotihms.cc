@@ -1,11 +1,43 @@
 #include <assert.h>
 #include <iostream>
 #include <limits.h>
+#include <map>
 #include <queue>
+#include <set>
 #include <stdio.h>
 #include <vector>
 
+using namespace std;
+
 // 实现图的所有算法
+class disjoint_set {
+public:
+  disjoint_set(int n) : u(n) {
+    for (auto i = 0; i < n; ++i) {
+      u[i] = i;
+    }
+  }
+
+  int find(int x) {
+    while (x != u[x])
+      x = u[x];
+    return x;
+  }
+
+  bool merge(int x, int y) {
+    x = find(x);
+    y = find(y);
+    if (x == y)
+      return false;
+    u[x] = y;
+    return true;
+  }
+
+  bool connected(int x, int y) { return find(x) == find(y); }
+
+private:
+  vector<int> u;
+};
 
 class DirectGraph {
 public:
@@ -40,6 +72,7 @@ private:
 };
 
 class UnDirectGraph {
+public:
   UnDirectGraph(int n) : grid(n, std::vector<int>(n, 0)) {}
   void add_edge(int u, int v, int w) { grid[u][v] = w; }
   int get_edge(int u, int v) const { return grid[u][v]; }
@@ -164,6 +197,51 @@ std::pair<std::vector<int>, std::vector<int>> Dijkstra(DirectGraph &g,
   return {dist, path};
 }
 
+std::vector<std::vector<int>> kruskal(const UnDirectGraph &graph) {
+  using namespace std;
+  int n = graph.size();
+  set<int> tree_v;
+  map<int, pair<int, int>> edges; //{weight, {i,j}};
+  for (auto i = 0; i < n; i++) {
+    for (auto j = i + 1; j < n; j++) {
+      if (graph.has_edge(i, j)) {
+        edges.emplace(graph.get_edge(i, j), pair<int, int>{i, j});
+        // cout << i << " " << j << " " << graph.get_edge(i, j) << endl;
+      }
+    }
+  }
+  disjoint_set ds(n);
+  vector<vector<int>> v(n, vector<int>(n, 0));
+  while (edges.size()) {
+    auto iter = edges.begin();
+    int weight = iter->first;
+    int i = iter->second.first;
+    int j = iter->second.second;
+    edges.erase(iter);
+    if (ds.connected(i, j)) {
+      continue;
+    }
+    ds.merge(i, j);
+    v[i][j] = weight;
+    cout << i << " " << j << " " << weight << endl;
+  }
+  return v;
+}
+
+// 皮皮灰的例子 第二套模拟卷大题第三题
+void test_kruskal() {
+  UnDirectGraph graph(6);
+  graph.add_edge(1, 2, 7);
+  graph.add_edge(1, 3, 5);
+  graph.add_edge(1, 4, 9);
+  graph.add_edge(2, 3, 8);
+  graph.add_edge(2, 4, 5);
+  graph.add_edge(2, 5, 4);
+  graph.add_edge(3, 4, 6);
+  graph.add_edge(4, 5, 2);
+  kruskal(graph);
+}
+
 void print_path(int vetex, int from, const std::vector<int> &path) {
   int to = from;
   while (to != -1) {
@@ -234,8 +312,9 @@ void TestCheckDirectedCycle() {
 }
 
 int main(int, char **) {
-  TestUnWeighted();
-  TestWeighted();
-  TestCheckDirectedCycle();
+  // TestUnWeighted();
+  // TestWeighted();
+  // TestCheckDirectedCycle();
+  test_kruskal();
   return 0;
 }
